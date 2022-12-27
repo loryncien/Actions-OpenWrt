@@ -28,7 +28,7 @@ env:
   CONFIG_FILE: config/lean-x86_64-lite.config
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2-lean.sh
-  UPLOAD_BIN_DIR: true
+  UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
@@ -50,7 +50,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install rdate $(curl -fsSL is.gd/depends_ubuntu_2204)
+        sudo -E apt-get -qq install $(curl -fsSL is.gd/depends_ubuntu_2204)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
@@ -91,10 +91,11 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
+        sed -i '/KERNEL_PATCHVER:/c KERNEL_PATCHVER:=5.4' target/linux/x86/Makefile
+        # custom settings
         mkdir -p files/etc/uci-defaults
         cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
         chmod a+x files/etc/uci-defaults/*
-        sed -i '/KERNEL_PATCHVER:/c KERNEL_PATCHVER:=5.4' target/linux/x86/Makefile
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0

@@ -91,8 +91,8 @@ sed -i 's# selected="selected"##' $(find feeds/ -name 'wrtbwmon.htm')
 sed -i 's#"2"#& selected="selected"#' $(find feeds/ -name 'wrtbwmon.htm')
 
 # 添加poweroff按钮
-curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/poweroff.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_system/poweroff.htm
-curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/system.lua > ./feeds/luci/modules/luci-mod-admin-full/luasrc/controller/admin/system.lua
+# curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/poweroff.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_system/poweroff.htm
+# curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/system.lua > ./feeds/luci/modules/luci-mod-admin-full/luasrc/controller/admin/system.lua
 
 # 修正连接数（by ベ七秒鱼ベ）
 # sed -i '1i net.netfilter.nf_conntrack_max=165535' package/base-files/files/etc/sysctl.conf
@@ -101,6 +101,6 @@ pushd package/lean/default-settings/files
 # 设置密码为空
 sed -i 's@.*CYXluq4wUazHjmCDBCqXF*@#&@g' zzz-default-settings
 # 版本号里显示一个自己的名字
-export date_version=$(date -d "$(rdate -n -4 -p ntp.aliyun.com)" +'%Y.%m.%d')
+export date_version=$(date +'%Y.%m.%d')
 sed -ri "s#(R[0-9].*[0-9])#\1 Build ${date_version} By Cheng #g" zzz-default-settings
 popd

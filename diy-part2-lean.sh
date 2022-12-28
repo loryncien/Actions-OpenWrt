@@ -104,3 +104,9 @@ sed -i 's@.*CYXluq4wUazHjmCDBCqXF*@#&@g' zzz-default-settings
 export date_version=$(date +'%Y.%m.%d')
 sed -ri "s#(R[0-9].*[0-9])#\1 Build ${date_version} By Cheng #g" zzz-default-settings
 popd
+
+# custom settings
+mkdir -p files/etc/uci-defaults
+cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
+chmod a+x files/etc/uci-defaults/*
+

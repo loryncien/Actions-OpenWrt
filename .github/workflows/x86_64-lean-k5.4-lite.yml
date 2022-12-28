@@ -92,10 +92,6 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
         sed -i '/KERNEL_PATCHVER:/c KERNEL_PATCHVER:=5.4' target/linux/x86/Makefile
-        # custom settings
-        mkdir -p files/etc/uci-defaults
-        cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
-        chmod a+x files/etc/uci-defaults/*
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0

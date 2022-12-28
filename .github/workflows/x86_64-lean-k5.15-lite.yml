@@ -1,10 +1,12 @@
-#=================================================
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
 # https://github.com/P3TERX/Actions-OpenWrt
 # Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
+#
 
 name: Build-x86_64-lean-k5.15-lite
 
@@ -36,7 +38,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -48,7 +50,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install rdate $(curl -fsSL is.gd/depends_ubuntu_2204)
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2004)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
@@ -62,11 +64,11 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: cache
-      uses: klever1988/cachewrtbuild@main
-      with:
-        ccache: 'true'
-        prefix: ${{ github.workspace }}/openwrt
+    #- name: cache
+    #  uses: klever1988/cachewrtbuild@main
+    #  with:
+    #    ccache: 'true'
+    #    prefix: ${{ github.workspace }}/openwrt
 
     - name: Load custom feeds
       run: |
@@ -89,9 +91,6 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-        mkdir -p files/etc/uci-defaults
-        cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
-        chmod a+x files/etc/uci-defaults/*
         sed -i '/KERNEL_PATCHVER:/c KERNEL_PATCHVER:=5.15' target/linux/x86/Makefile
 
     - name: SSH connection to Actions
@@ -211,7 +210,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: OpenWrt-Lite-k5.4-x86_64-${{ env.FILE_DATE }}
+        tag_name: OpenWrt-x86_64-k5.15-Lite${{ env.FILE_DATE }}
         body_path: ${{ github.workspace }}/config/release_note.txt
         files: ${{ env.FIRMWARE }}/*
 
@@ -235,8 +234,8 @@ jobs:
     #   uses: emon100/Action-Serverchan@v4
     #   with:
     #     sendkey: ${{ secrets.SCKEY }}
-    #     text: OpenWrt 固件编译完成！
-    #     desp: OpenWrt-x86_64-k5.15-Lite${{ env.FILE_DATE }}
+    #     text: OpenWrt-Lite-x86_64 固件编译完成！
+    #     desp: 固件名称:OpenWrt-Lite-k5.15-x86_64-generic-squashfs-combined-${{ env.FILE_DATE }}.img.gz
         
     - name: Push notification ++
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -245,7 +244,7 @@ jobs:
         key: ${{ secrets.BARKKEY }}   # Your secret key, it is required
         host: ${{ secrets.HOST }}     # Your Bark host, the default is 'https://api.day.app' ${{ secrets.HOST }}
         title: OpenWrt 固件编译完成！
-        body: OpenWrt-x86_64-k5.15-Lite${{ env.FILE_DATE }}
+        body: OpenWrt-x86_64-k5.15-lite${{ env.FILE_DATE }}
         sound: fanfare
         isArchive: 1
         # url: https://yuanhaoji.com

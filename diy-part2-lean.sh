@@ -79,12 +79,12 @@ sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/
 sed -i 's/${g}'"'"' - '"'"'//g' package/lean/autocore/files/x86/autocore
 
 # Match Vermagic
-wget https://mirrors.cloud.tencent.com/lede/snapshots/targets/x86/64/packages/Packages.gz
-zgrep -m 1 "Depends: kernel (=.*)$" Packages.gz | sed -e 's/.*-\(.*\))/\1/' > .vermagic
-sed -i -e 's/^\(.\).*vermagic$/\1cp $(TOPDIR)\/.vermagic $(LINUX_DIR)\/.vermagic/' include/kernel-defaults.mk
+#wget https://mirrors.cloud.tencent.com/lede/snapshots/targets/x86/64/packages/Packages.gz
+#zgrep -m 1 "Depends: kernel (=.*)$" Packages.gz | sed -e 's/.*-\(.*\))/\1/' > .vermagic
+#sed -i -e 's/^\(.\).*vermagic$/\1cp $(TOPDIR)\/.vermagic $(LINUX_DIR)\/.vermagic/' include/kernel-defaults.mk
 
 # ssrp duplicate nodes
-sed -i 's#jsonStringify(result)#alias#g' $(find package/ -path '*shadowsocksr/subscribe.lua')
+sed -i 's#jsonStringify(result)#alias#g' $(find feeds/ -path '*shadowsocksr/subscribe.lua')
 # luci-app-wrtbwmon 5s to 2s
 sed -i 's#interval: 5#interval: 2#g' $(find feeds/ -name 'wrtbwmon.js')
 sed -i 's# selected="selected"##' $(find feeds/ -name 'wrtbwmon.htm')

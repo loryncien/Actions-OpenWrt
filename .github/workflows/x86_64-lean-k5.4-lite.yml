@@ -28,12 +28,12 @@ env:
   CONFIG_FILE: config/lean-x86_64-lite.config
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2-lean.sh
-  UPLOAD_BIN_DIR: true
+  UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
-  SEND_WECHAT_MSG: true
+  SEND_BARK_MSG: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -86,12 +86,12 @@ jobs:
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
-        [ -e replace ] && cp -rf replace/* openwrt/
+
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-        sed -i '/KERNEL_PATCHVER:/c KERNEL_PATCHVER:=5.4' target/linux/x86/Makefile
+        sed -i '/KERNEL_PATCHVER/c KERNEL_PATCHVER:=5.4' target/linux/x86/Makefile
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -127,7 +127,7 @@ jobs:
 
     - name: Upload bin directory
       uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
@@ -171,7 +171,7 @@ jobs:
     
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
-      if: env.UPLOAD_FIRMWARE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
@@ -210,35 +210,29 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: OpenWrt-Lite-k5.4-x86_64-${{ env.FILE_DATE }}
-        body_path: ${{ github.workspace }}/config/release_note.txt
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+        # tag_name: OpenWrt-Lite-k5.4-x86_64-${{ env.FILE_DATE }}
+        # body_path: ${{ github.workspace }}/config/release_note.txt
         files: ${{ env.FIRMWARE }}/*
 
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
       with:
         retain_days: 1
-        keep_minimum_runs: 5
+        keep_minimum_runs: 3
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 8
+        keep_latest: 10
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # - name: Wechat Notification ++
-    #   if: steps.organize.outputs.status == 'success' && env.SEND_WECHAT_MSG == 'true' && !cancelled()
-    #   uses: emon100/Action-Serverchan@v4
-    #   with:
-    #     sendkey: ${{ secrets.SCKEY }}
-    #     text: OpenWrt-Lite-x86_64 固件编译完成！
-    #     desp: 固件名称:OpenWrt-Lite-k5.4-x86_64-generic-squashfs-combined-${{ env.FILE_DATE }}.img.gz
         
     - name: Push notification ++
-      if: steps.organize.outputs.status == 'success' && !cancelled()
+      if: env.SEND_BARK_MSG == 'true' && steps.tag.outputs.status == 'success' && !cancelled()
       uses: shink/bark-action@v2
       with:
         key: ${{ secrets.BARKKEY }}   # Your secret key, it is required

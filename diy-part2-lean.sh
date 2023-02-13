@@ -14,6 +14,13 @@
 # git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall
 # git clone --depth=1 -b luci https://github.com/xiaorouji/openwrt-passwall luci-app-passwall
 
+# drop mosdns and v2ray-geodata packages that come with the source
+find ./ | grep Makefile | grep v2ray-geodata | xargs rm -f
+find ./ | grep Makefile | grep mosdns | xargs rm -f
+
+git clone https://github.com/sbwml/luci-app-mosdns package/mosdns
+git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+
 pushd package
 # Add luci-app-openclash
 svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash

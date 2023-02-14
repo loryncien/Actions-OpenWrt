@@ -6,9 +6,9 @@
 # Blog: https://mlapp.cn
 #===============================================
 
-([ -x /bin/bash ] && ! grep -q "^root.*bash" /etc/passwd) && sed -i "s/^\(root.*\/\)ash/\1bash/g" /etc/passwd
+[ -x /usr/bin/zsh ] && sed -i "s#^\(root.*root:\)/bin/ash#\1/usr/bin/zsh#g" /etc/passwd
 
-# Set default theme to luci-theme-argon
+# Set default theme to luci-theme-argon`
 uci set luci.main.mediaurlbase='/luci-static/argon'
 uci commit luci
 
@@ -18,12 +18,12 @@ uci commit luci
 sed -i '/passwall/d' /etc/opkg/distfeeds.conf
 sed -i '/helloworld/d' /etc/opkg/distfeeds.conf
 
+# Check file system during boot
+uci set fstab.@global[0].check_fs=1
+uci commit fstab
+
 # Disable IPV6 ula prefix
 # sed -i 's/^[^#].*option ula/#&/' /etc/config/network
-
-# Check file system during boot
-# uci set fstab.@global[0].check_fs=1
-# uci commit fstab
 
 # 默认关闭ipv6 dhcp、ULA
 uci -q delete dhcp.lan.ra

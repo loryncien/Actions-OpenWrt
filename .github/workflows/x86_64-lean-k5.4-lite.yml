@@ -99,10 +99,12 @@ jobs:
       run: |
         cd openwrt
         sed -i "/KERNEL_PATCHVER/c KERNEL_PATCHVER:=$KERNEL_PATCHVER" target/linux/x86/Makefile
-        CONFIG_KERNEL_PATCHVER=$(echo $KERNEL | sed 's/\./_/g')
+        CONFIG_KERNEL_PATCHVER=$(echo $KERNEL_PATCHVER | sed 's/\./_/g')
         sed -i "s/CONFIG_LINUX.*/CONFIG_LINUX_$CONFIG_KERNEL_PATCHVER=y/g" .config
         KERNEL_VERSION=$KERNEL_PATCHVER$(cat include/kernel-"$KERNEL_PATCHVER" | grep LINUX_VERSION | awk -F '= ' '{print $2}')
         echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
+        DEFAULT_IP=$(cat package/base-files/files/bin/config_generate | grep 'lan) ipad=' | awk -F '"' '{print $2}')
+        echo "DEFAULT_IP=$DEFAULT_IP" >> $GITHUB_ENV
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -211,10 +213,10 @@ jobs:
       run: |
         echo "::set-output name=release_tag::$(date +"OpenWrt_Lite_%Y%m%d_%H%M")"
         touch release.txt
-        echo "Default IP: `192.168.1.1`" >> release.txt
-        echo "Username: `root`, Password: null" >> release.txt
-        echo "Kernel Version: ${{ env.KERNEL_VERSION }}" >> release.txt
-        echo "Commit SHA: ${{ env.COMMITSHA }}" >> release.txt
+        echo "- Default IP: \`${{ env.DEFAULT_IP }}\`" >> release.txt
+        echo "- Username: \`root\`, Password: null" >> release.txt
+        echo "- Kernel Version: ${{ env.KERNEL_VERSION }}" >> release.txt
+        echo "- Commit SHA: ${{ env.commitHash }}" >> release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"

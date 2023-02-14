@@ -26,7 +26,7 @@ pushd package
 svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 
 # Add luci-app-unblockneteasemusic
-git clone --depth=1 https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+git clone --depth=1 -b master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 
 # Add aliyundrive-webdav
 svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt aliyundrive
@@ -76,6 +76,7 @@ git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config
 rm -rf ../feeds/luci/themes/luci-theme-argon
 popd
 
+
 # Modify default IP
 #sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
 
@@ -98,8 +99,8 @@ sed -i 's# selected="selected"##' $(find feeds/ -name 'wrtbwmon.htm')
 sed -i 's#"2"#& selected="selected"#' $(find feeds/ -name 'wrtbwmon.htm')
 
 # 添加poweroff按钮
-# curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/poweroff.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_system/poweroff.htm
-# curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/system.lua > ./feeds/luci/modules/luci-mod-admin-full/luasrc/controller/admin/system.lua
+curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/poweroff.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_system/poweroff.htm
+curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/system.lua > ./feeds/luci/modules/luci-mod-admin-full/luasrc/controller/admin/system.lua
 
 # 修正连接数（by ベ七秒鱼ベ）
 # sed -i '1i net.netfilter.nf_conntrack_max=165535' package/base-files/files/etc/sysctl.conf

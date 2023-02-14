@@ -92,11 +92,12 @@ in order to prevent unauthorized SSH logins.
 EOF
 fi
 
+alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../../'
 alias reload='source /etc/profile'
 alias shutdown='sync && poweroff'
-alias cls='clear'                                           
+alias cl='clear'                                           
 alias top='top -d 1'
 alias ls='ls -F'
 alias ll='ls -lh'         # long format and human-readable sizes

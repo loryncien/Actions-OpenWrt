@@ -80,6 +80,12 @@ popd
 # Modify default IP
 #sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
 
+# 修正连接数（by ベ七秒鱼ベ）
+#sed -i '1i net.netfilter.nf_conntrack_max=165535' package/base-files/files/etc/sysctl.conf
+
+# Change default shell to zsh
+#sed -i 's#/bin/ash#/usr/bin/zsh#g' package/base-files/files/etc/passwd
+
 # Modify localtime in Homepage
 echo 'Modify localtime in Homepage...'
 sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/x86/index.htm
@@ -102,9 +108,6 @@ sed -i 's#"2"#& selected="selected"#' $(find feeds/ -name 'wrtbwmon.htm')
 curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/poweroff.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_system/poweroff.htm
 curl -fsSL https://raw.githubusercontent.com/sirpdboy/other/master/patch/poweroff/system.lua > ./feeds/luci/modules/luci-mod-admin-full/luasrc/controller/admin/system.lua
 
-# 修正连接数（by ベ七秒鱼ベ）
-# sed -i '1i net.netfilter.nf_conntrack_max=165535' package/base-files/files/etc/sysctl.conf
-
 pushd package/lean/default-settings/files
 # 设置密码为空
 sed -i 's@.*CYXluq4wUazHjmCDBCqXF*@#&@g' zzz-default-settings
@@ -117,4 +120,3 @@ popd
 mkdir -p files/etc/uci-defaults
 cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
 chmod a+x files/etc/uci-defaults/*
-

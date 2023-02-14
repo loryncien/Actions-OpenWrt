@@ -28,13 +28,14 @@ env:
   CONFIG_FILE: config/lean-x86_64-lite.config
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2-lean.sh
-  UPLOAD_BIN_DIR: true
+  UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
-  SEND_WECHAT_MSG: true
+  SEND_BARK_MSG: true
   TZ: Asia/Shanghai
+  KERNEL_PATCHVER: 5.15
 
 jobs:
   build:
@@ -86,12 +87,24 @@ jobs:
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
-        [ -e replace ] && cp -rf replace/* openwrt/
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x $GITHUB_WORKSPACE/scripts/*.sh
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-        sed -i '/KERNEL_PATCHVER:/c KERNEL_PATCHVER:=5.15' target/linux/x86/Makefile
+        $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
+        
+    - name: Switch kernel
+      if: (!cancelled())
+      run: |
+        cd openwrt
+        sed -i "/KERNEL_PATCHVER/c KERNEL_PATCHVER:=$KERNEL_PATCHVER" target/linux/x86/Makefile
+        CONFIG_KERNEL_PATCHVER=$(echo $KERNEL_PATCHVER | sed 's/\./_/g')
+        sed -i "s/CONFIG_LINUX.*/CONFIG_LINUX_$CONFIG_KERNEL_PATCHVER=y/g" .config
+        KERNEL_VERSION=$KERNEL_PATCHVER$(cat include/kernel-"$KERNEL_PATCHVER" | grep LINUX_VERSION | awk -F '= ' '{print $2}')
+        echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
+        DEFAULT_IP=$(cat package/base-files/files/bin/config_generate | grep 'lan) ipad=' | awk -F '"' '{print $2}')
+        echo "DEFAULT_IP=$DEFAULT_IP" >> $GITHUB_ENV
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -104,7 +117,7 @@ jobs:
       id: package
       run: |
         cd openwrt
-        echo "::set-output name=commitHash::$(git rev-parse --short HEAD)"
+        echo "::set-output name=commitHash::$(git rev-parse HEAD)"
         make defconfig
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
@@ -127,7 +140,7 @@ jobs:
 
     - name: Upload bin directory
       uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
@@ -171,7 +184,7 @@ jobs:
     
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
-      if: env.UPLOAD_FIRMWARE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
@@ -198,8 +211,12 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
       run: |
-        echo "::set-output name=release_tag::$(date +"OpenWrt_%Y%m%d%H%M%S")"
+        echo "::set-output name=release_tag::$(date +"OpenWrt_Lite_%Y%m%d_%H%M")"
         touch release.txt
+        echo "- Default IP: \`${{ env.DEFAULT_IP }}\`" >> release.txt
+        echo "- Username: \`root\`, Password: null" >> release.txt
+        echo "- Kernel Version: ${{ env.KERNEL_VERSION }}" >> release.txt
+        echo "- Commit SHA: ${{ env.commitHash }}" >> release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"
@@ -210,41 +227,33 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: OpenWrt-x86_64-k5.15-Lite${{ env.FILE_DATE }}
-        body_path: ${{ github.workspace }}/config/release_note.txt
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
 
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
       with:
         retain_days: 1
-        keep_minimum_runs: 5
+        keep_minimum_runs: 3
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 8
+        keep_latest: 10
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # - name: Wechat Notification ++
-    #   if: steps.organize.outputs.status == 'success' && env.SEND_WECHAT_MSG == 'true' && !cancelled()
-    #   uses: emon100/Action-Serverchan@v4
-    #   with:
-    #     sendkey: ${{ secrets.SCKEY }}
-    #     text: OpenWrt-Lite-x86_64 固件编译完成！
-    #     desp: 固件名称:OpenWrt-Lite-k5.15-x86_64-generic-squashfs-combined-${{ env.FILE_DATE }}.img.gz
         
     - name: Push notification ++
-      if: steps.organize.outputs.status == 'success' && !cancelled()
+      if: env.SEND_BARK_MSG == 'true' && steps.tag.outputs.status == 'success' && !cancelled()
       uses: shink/bark-action@v2
       with:
         key: ${{ secrets.BARKKEY }}   # Your secret key, it is required
         host: ${{ secrets.HOST }}     # Your Bark host, the default is 'https://api.day.app' ${{ secrets.HOST }}
         title: OpenWrt 固件编译完成！
-        body: OpenWrt-x86_64-k5.15-lite${{ env.FILE_DATE }}
+        body: OpenWrt-x86_64-k5.15-Lite${{ env.FILE_DATE }}
         sound: fanfare
         isArchive: 1
         # url: https://yuanhaoji.com

@@ -87,9 +87,11 @@ jobs:
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x $GITHUB_WORKSPACE/scripts/*.sh
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
+        $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
         sed -i '/KERNEL_PATCHVER/c KERNEL_PATCHVER:=5.4' target/linux/x86/Makefile
 
     - name: SSH connection to Actions
@@ -197,8 +199,9 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
       run: |
-        echo "::set-output name=release_tag::$(date +"OpenWrt_%Y%m%d_%H%M")"
+        echo "::set-output name=release_tag::$(date +"OpenWrt_Lite_%Y%m%d_%H%M")"
         touch release.txt
+        cat ${{ github.workspace }}/config/release.txt >> release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"
@@ -211,8 +214,6 @@ jobs:
       with:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
-        # tag_name: OpenWrt-Lite-k5.4-x86_64-${{ env.FILE_DATE }}
-        # body_path: ${{ github.workspace }}/config/release_note.txt
         files: ${{ env.FIRMWARE }}/*
 
     - name: Delete workflow runs

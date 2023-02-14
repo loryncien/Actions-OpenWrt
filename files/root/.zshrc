@@ -100,8 +100,8 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 # Initialize modules
 # ------------------
 
-ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
-ZIM_CONFIG_FILE=~/.zimrc
+ZIM_CONFIG_FILE=~/zim/zimrc
+ZIM_HOME=${ZDOTDIR:-${HOME}}/zim
 # Download zimfw plugin manager if missing.
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
   if (( ${+commands[curl]} )); then

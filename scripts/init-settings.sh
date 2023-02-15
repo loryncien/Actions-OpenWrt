@@ -6,7 +6,7 @@
 # Blog: https://mlapp.cn
 #===============================================
 
-[ -x /usr/bin/zsh ] && sed -i "s#^\(root.*root:\)/bin/ash#\1/usr/bin/zsh#g" /etc/passwd
+# [ -x /usr/bin/zsh ] && sed -i "s#^\(root.*root:\)/bin/ash#\1/usr/bin/zsh#g" /etc/passwd
 
 # Set default theme to luci-theme-argon`
 uci set luci.main.mediaurlbase='/luci-static/argon'
@@ -14,7 +14,7 @@ uci commit luci
 
 # Disable opkg signature check
 # sed -i 's/option check_signature/# option check_signature/g' /etc/opkg.conf
-# 删除distfeeds.conf里面包含关键词的所在行
+# Delete the line containing the keyword in distfeeds.conf
 sed -i '/passwall/d' /etc/opkg/distfeeds.conf
 sed -i '/helloworld/d' /etc/opkg/distfeeds.conf
 
@@ -25,7 +25,7 @@ uci commit fstab
 # Disable IPV6 ula prefix
 # sed -i 's/^[^#].*option ula/#&/' /etc/config/network
 
-# 默认关闭ipv6 dhcp、ULA
+# Disable IPv6 DHCP, ULA
 uci -q delete dhcp.lan.ra
 uci -q delete dhcp.lan.dhcpv6
 uci -q delete dhcp.lan.ra_management
@@ -34,7 +34,7 @@ uci -q delete network.globals
 uci -q delete network.wan6
 uci commit network
 
-# 计划任务
+# cron
 # uci set system.@system[0].cronloglevel="9"
 # uci commit system
 

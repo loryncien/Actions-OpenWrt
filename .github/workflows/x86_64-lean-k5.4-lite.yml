@@ -92,7 +92,8 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-        $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
+        # $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
+        $GITHUB_WORKSPACE/scripts/preset-clash-core.sh amd64
         
     - name: Switch kernel
       if: (!cancelled())
@@ -216,7 +217,6 @@ jobs:
         echo "- Default IP: \`${{ env.DEFAULT_IP }}\`" >> release.txt
         echo "- Username: \`root\`, Password: null" >> release.txt
         echo "- Kernel Version: ${{ env.KERNEL_VERSION }}" >> release.txt
-        echo "- Commit SHA: ${{ env.commitHash }}" >> release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"

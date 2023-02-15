@@ -34,8 +34,8 @@ git clone --depth=1 -b master https://github.com/UnblockNeteaseMusic/luci-app-un
 # drop mosdns and v2ray-geodata packages that come with the source
 find ../ | grep Makefile | grep v2ray-geodata | xargs rm -f
 find ../ | grep Makefile | grep mosdns | xargs rm -f
-git clone https://github.com/sbwml/luci-app-mosdns package/mosdns
-git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+git clone https://github.com/sbwml/luci-app-mosdns mosdns
+git clone https://github.com/sbwml/v2ray-geodata v2ray-geodata
 
 
 # Add aliyundrive-webdav

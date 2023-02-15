@@ -14,19 +14,29 @@
 # git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall
 # git clone --depth=1 -b luci https://github.com/xiaorouji/openwrt-passwall luci-app-passwall
 
-# drop mosdns and v2ray-geodata packages that come with the source
-find ./ | grep Makefile | grep v2ray-geodata | xargs rm -f
-find ./ | grep Makefile | grep mosdns | xargs rm -f
-
-git clone https://github.com/sbwml/luci-app-mosdns package/mosdns
-git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
-
 pushd package
 # Add luci-app-openclash
-svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
+# svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
+mkdir luci-app-openclash
+cd luci-app-openclash
+git init
+git remote add -f origin https://github.com/vernesong/OpenClash.git
+git config core.sparsecheckout true
+echo "luci-app-openclash" >> .git/info/sparse-checkout
+git pull --depth 1 origin master
+git branch --set-upstream-to=origin/master
+cd ..
 
 # Add luci-app-unblockneteasemusic
 git clone --depth=1 -b master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+
+# Add luci-app-mosdns
+# drop mosdns and v2ray-geodata packages that come with the source
+find ../ | grep Makefile | grep v2ray-geodata | xargs rm -f
+find ../ | grep Makefile | grep mosdns | xargs rm -f
+git clone https://github.com/sbwml/luci-app-mosdns package/mosdns
+git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+
 
 # Add aliyundrive-webdav
 svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt aliyundrive

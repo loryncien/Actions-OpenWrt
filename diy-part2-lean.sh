@@ -75,6 +75,11 @@ git clone https://github.com/AlexZhuo/luci-app-bandwidthd.git
 # Add luci-app-omcproxy
 git clone --depth=1 -b 18.06 https://github.com/riverscn/luci-app-omcproxy.git
 
+# Add luci-app-netdata
+git clone --depth=1 https://github.com/sirpdboy/luci-app-netdata
+rm -rf ../feeds/luci/applications/luci-app-netdata
+git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git
+
 # Add Theme
 svn export https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-tomato
 svn export https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-mcat

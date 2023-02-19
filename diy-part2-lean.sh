@@ -89,6 +89,7 @@ git clone --depth=1 https://github.com/thinktip/luci-theme-neobird.git
 git clone --depth=1 -b 18.06 https://github.com/jerrykuku/luci-theme-argon
 git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config
 rm -rf ../feeds/luci/themes/luci-theme-argon
+sed -i '/letter-spacing: 1px/{N;s#text-transform: uppercase#text-transform: none#}' luci-theme-argon/htdocs/luci-static/argon/css/cascade.css
 popd
 
 

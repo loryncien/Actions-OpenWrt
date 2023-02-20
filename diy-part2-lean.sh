@@ -29,6 +29,8 @@ cd ..
 
 # Add luci-app-unblockneteasemusic
 git clone --depth=1 -b master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+# uclient-fetch Use IPv4 only
+sed -i 's/-qO-/-4qO-/g' luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic/update.sh
 
 # Add luci-app-mosdns
 # drop mosdns and v2ray-geodata packages that come with the source
@@ -36,7 +38,6 @@ find ../ | grep Makefile | grep v2ray-geodata | xargs rm -f
 find ../ | grep Makefile | grep mosdns | xargs rm -f
 git clone https://github.com/sbwml/luci-app-mosdns mosdns
 git clone https://github.com/sbwml/v2ray-geodata v2ray-geodata
-
 
 # Add aliyundrive-webdav
 svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt aliyundrive

@@ -30,7 +30,7 @@ cd ..
 # Add luci-app-unblockneteasemusic
 git clone --depth=1 -b master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 # uclient-fetch Use IPv4 only
-sed -i 's/-qO-/-4qO-/g' luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic/update.sh
+sed -i 's/uclient-fetch/uclient-fetch -4/g' luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic/update.sh
 
 # Add luci-app-mosdns
 # drop mosdns and v2ray-geodata packages that come with the source

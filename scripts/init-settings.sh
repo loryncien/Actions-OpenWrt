@@ -40,5 +40,7 @@ uci commit network
 
 # 开启ttyd账户密码登录(已开启)
 # uci set system.@system[0].ttylogin=1
+# sirpdboy luci-app-netdata-cn 不能启动
+[ -f /etc/init.d/netdata ] && chmod +x /etc/init.d/netdata
 
 exit 0

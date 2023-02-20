@@ -108,7 +108,7 @@ jobs:
         DEFAULT_IP=$(cat package/base-files/files/bin/config_generate | grep 'lan) ipad=' | awk -F '"' '{print $2}')
         echo "DEFAULT_IP=$DEFAULT_IP" >> $GITHUB_ENV
         # Match Vermagic
-        wget https://https://downloads.immortalwrt.org/releases/18.06-k5.4-SNAPSHOT/targets/x86/64/packages/Packages.gz
+        wget https://downloads.immortalwrt.org/releases/18.06-k5.4-SNAPSHOT/targets/x86/64/packages/Packages.gz
         zgrep -m 1 "Depends: kernel (=.*)$" Packages.gz | sed -e 's/.*-\(.*\))/\1/' > .vermagic
         sed -i -e 's/^\(.\).*vermagic$/\1cp $(TOPDIR)\/.vermagic $(LINUX_DIR)\/.vermagic/' include/kernel-defaults.mk
 

@@ -10,7 +10,7 @@ Sysinfo() {
 		}
 	}
 	local Firmwaree="Frame"
-	[ ! -e /etc/openwrt_info ] && { 
+	[ ! -e /etc/openwrt_info ] && {
             local Firmwaree="Frame"
             local Luci_Revision=${DISTRIB_REVISION}
             local Luci_Release=${DISTRIB_RELEASE}
@@ -26,18 +26,16 @@ Sysinfo() {
 	local Tmp_Available="$(df -h | grep "/tmp" | awk '{print $4}' | awk 'NR==1')"
 	local TEMP=$(sensors 2>/dev/null | grep 'Core 0' | awk '{print $3}')
 	local KERNELL="$(egrep -o "[0-9]+\.[0-9]+\.[0-9]+" /usr/lib/opkg/info/kernel.control)"
-	cat  <<EOF
- $(echo -e "Model:   ${Green}${Cpu_model} | ${Cpu_cores}C${Cpu_thread}T${White}")
- $(echo -e "${Firmwaree}:   ${Skyb}$(uname -n) ${Luci_Revision}${White}")
- $(echo -e "Freqs:   ${Purple}${Cpu_MHz}${White}")
- $(echo -e "Kernel:  ${Green}${KERNELL}${White} | ${CURRENT_Version}")
- $(echo -e "Lan_IP:  ${Skyb}${IP_Address}${White}")
- Uptime:  ${Startup}
- Free:    Overlay: ${Overlay_Available} | Tmp: ${Tmp_Available}
- $([ -n "${CoreMark}" ] && echo -e "Score:   CoreMark: ${CoreMark}")
-EOF
-echo
-echo
+	cat  <<-EOF
+	 $(echo -e "Model:   ${Green}${Cpu_model} | ${Cpu_cores}C${Cpu_thread}T${White}")
+	 $(echo -e "${Firmwaree}:   ${Skyb}$(uname -n) ${Luci_Revision}${White}")
+	 $(echo -e "Freqs:   ${Purple}${Cpu_MHz}${White}")
+	 $(echo -e "Kernel:  ${Green}${KERNELL}${White} | ${CURRENT_Version}")
+	 $(echo -e "Lan_IP:  ${Skyb}${IP_Address}${White}")
+	 Uptime:  ${Startup}
+	 Free:    Overlay: ${Overlay_Available} | Tmp: ${Tmp_Available}
+	 $([ -n "${CoreMark}" ] && echo -e "Score:   CoreMark: ${CoreMark}")
+	EOF
 }
 
 export White="\e[0m"
@@ -55,8 +53,8 @@ clear
 [ -n "$FAILSAFE" ] && cat /etc/banner.failsafe
 
 grep -Fsq '/ overlay ro,' /proc/mounts && {
-	echo -e "${Red}Your JFFS2-partition seems full and overlayfs is mounted read-only."
-	echo -e "Please try to remove files from /overlay/upper/... and reboot!${}"
+	echo 'Your JFFS2-partition seems full and overlayfs is mounted read-only.'
+	echo 'Please try to remove files from /overlay/upper/... and reboot!'
 }
 
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
@@ -92,14 +90,16 @@ in order to prevent unauthorized SSH logins.
 EOF
 fi
 
+Sysinfo
+
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../../'
 alias reload='source /etc/profile'
 alias shutdown='sync && poweroff'
-alias cl='clear'                                           
+alias cl='clear'
 alias top='top -d 1'
-alias ls='ls -F'
+alias ls='ls -F --color=auto'
 alias ll='ls -lh'         # long format and human-readable sizes
 alias l='ll -A'           # long format, all files
 alias la='ll -A'          # long format, all files
@@ -110,7 +110,6 @@ alias lc='lt -c'          # long format, newest status change (ctime) last
 alias dh='df -h'
 alias ramfree='sync && echo 3 > /proc/sys/vm/drop_caches'
 alias reip='uci set network.lan.ipaddr=$ip && uci commit network && /etc/init.d/network restart'
-# functions
 mkcd() {
-    mkdir -p "$@" && cd "$_";
+    mkdir -p "$@" && cd "$@";
 }

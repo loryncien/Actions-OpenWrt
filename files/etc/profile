@@ -36,6 +36,7 @@ Sysinfo() {
 	 Free:    Overlay: ${Overlay_Available} | Tmp: ${Tmp_Available}
 	 $([ -n "${CoreMark}" ] && echo -e "Score:   CoreMark: ${CoreMark}")
 	EOF
+	echo
 }
 
 export White="\e[0m"
@@ -113,5 +114,5 @@ lan() {
     uci set network.lan.ipaddr="$@" && ifup lan
 }
 mkcd() {
-    mkdir -p "$@" && cd "$@";
+    [[ -n ${1} ]] && mkdir -p ${1} && cd ${1}
 }

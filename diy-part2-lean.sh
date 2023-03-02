@@ -16,19 +16,19 @@
 
 pushd package
 # Add luci-app-openclash
-# svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
-mkdir luci-app-openclash
-cd luci-app-openclash
-git init
-git remote add -f origin https://github.com/vernesong/OpenClash.git
-git config core.sparsecheckout true
-echo "luci-app-openclash" >> .git/info/sparse-checkout
-git pull --depth 1 origin master
-git branch --set-upstream-to=origin/master
-cd ..
+svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 
 # Add luci-app-unblockneteasemusic
 git clone --depth=1 -b master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+# unblockneteasemusic core
+NAME=$"luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
+curl 'https://api.github.com/repos/UnblockNeteaseMusic/server/commits?sha=enhanced&path=precompiled' -o commits.json
+echo "$(grep sha commits.json | sed -n "1,1p" | cut -c 13-52)">"$NAME/core_local_ver"
+curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/app.js -o $NAME/core/app.js
+curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/bridge.js -o $NAME/core/bridge.js
+curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
+curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
+curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
 # uclient-fetch Use IPv4 only
 sed -i 's/uclient-fetch/uclient-fetch -4/g' luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic/update.sh
 
@@ -48,6 +48,11 @@ rm -rf ../feeds/packages/multimedia/aliyundrive-webdav
 git clone -b lede https://github.com/pymumu/luci-app-smartdns.git
 # git clone https://github.com/pymumu/smartdns.git package/smartdns
 # rm -rf ../feeds/packages/net/smartdns
+
+# Add alist
+rm -rf ../feeds/packages/lang/golang
+svn export https://github.com/sbwml/packages_lang_golang/branches/19.x ../feeds/packages/lang/golang
+git clone --depth=1 https://github.com/sbwml/luci-app-alist
 
 # Add gowebdav
 #git clone --depth=1 https://github.com/immortalwrt/openwrt-gowebdav.git
@@ -85,7 +90,9 @@ git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git
 svn export https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-tomato
 svn export https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-mcat
 git clone --depth=1 https://github.com/sirpdboy/luci-theme-opentopd
-git clone --depth=1 https://github.com/thinktip/luci-theme-neobird.git
+# luci-theme-design theme
+rm -rf ../feeds/luci/themes/luci-theme-design
+git clone --depth=1 https://github.com/gngpp/luci-theme-design.git
 # jerrykuku Argon theme
 git clone --depth=1 -b 18.06 https://github.com/jerrykuku/luci-theme-argon
 git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config
@@ -93,6 +100,10 @@ rm -rf ../feeds/luci/themes/luci-theme-argon
 sed -i '/letter-spacing: 1px/{N;s#text-transform: uppercase#text-transform: none#}' luci-theme-argon/htdocs/luci-static/argon/css/cascade.css
 popd
 
+# 编译 po2lmo (如果有po2lmo可跳过)
+pushd package/luci-app-openclash/tools/po2lmo
+make && sudo make install
+popd
 
 # Modify default IP
 #sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
@@ -125,7 +136,7 @@ pushd package/lean/default-settings/files
 sed -i 's@.*CYXluq4wUazHjmCDBCqXF*@#&@g' zzz-default-settings
 # 版本号里显示一个自己的名字
 export date_version=$(date +'%Y.%m.%d')
-sed -ri "s#(R[0-9].*[0-9])#\1 Build ${date_version} By Cheng #g" zzz-default-settings
+sed -ri "s#(R[0-9].*[0-9])#\1 Build ${date_version} By @Cheng #g" zzz-default-settings
 popd
 
 # custom settings

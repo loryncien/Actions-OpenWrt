@@ -23,7 +23,7 @@ sed -i '/helloworld/d' /etc/opkg/distfeeds.conf
 uci set fstab.@global[0].check_fs=1
 
 # Enable dhcp force
-uci set dhcp.lan.force='1'
+#uci set dhcp.lan.force='1'
 
 # Disable IPv6 DHCP, ULA
 uci -q delete dhcp.lan.ra

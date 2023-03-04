@@ -107,10 +107,6 @@ jobs:
         echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
         DEFAULT_IP=$(cat package/base-files/files/bin/config_generate | grep 'lan) ipad=' | awk -F '"' '{print $2}')
         echo "DEFAULT_IP=$DEFAULT_IP" >> $GITHUB_ENV
-        # Match Vermagic
-        wget https://downloads.immortalwrt.org/releases/18.06-k5.4-SNAPSHOT/targets/x86/64/packages/Packages.gz
-        zgrep -m 1 "Depends: kernel (=.*)$" Packages.gz | sed -e 's/.*-\(.*\))/\1/' > .vermagic
-        sed -i -e 's/^\(.\).*vermagic$/\1cp $(TOPDIR)\/.vermagic $(LINUX_DIR)\/.vermagic/' include/kernel-defaults.mk
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -258,7 +254,7 @@ jobs:
         key: ${{ secrets.BARKKEY }}   # Your secret key, it is required
         host: ${{ secrets.HOST }}     # Your Bark host, the default is 'https://api.day.app' ${{ secrets.HOST }}
         title: OpenWrt 固件编译完成！
-        body: OpenWrt-x86_64-k5.4-Lite${{ env.FILE_DATE }}
+        body: OpenWrt-x86_64-k5.4-lite
         sound: fanfare
         isArchive: 1
         # url: https://yuanhaoji.com
